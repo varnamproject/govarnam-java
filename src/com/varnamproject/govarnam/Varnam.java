@@ -36,6 +36,10 @@ public final class Varnam {
 
     private native void varnam_set_tokenizer_suggestions_limit(int handle, int limit);
 
+    private native LearnStatus varnam_learn_from_file(int handle, String path);
+    private native int varnam_import(int handle, String path);
+    private native int varnam_export(int handle, String path, int wordsPerFile);
+
     private int handle;
 
     public Varnam(String vstFile, String learningsFile) throws VarnamException {
@@ -81,60 +85,32 @@ public final class Varnam {
         }
     }
 
-//  public static class LearnStatus extends Structure {
-//    public static class ByReference extends LearnStatus implements Structure.ByReference {}
-//
-//    public int total_sugs;
-//    public int failed;
-//
-//    protected List<String> getFieldOrder() {
-//      return Arrays.asList("total_sugs", "failed");
-//    }
-//  }
+    public LearnStatus learnFromFile(String path) {
+        return varnam_learn_from_file(this.handle, path);
+    }
 
-//  public LearnStatus.ByReference learnFromFile(String path, VarnamLibrary.LearnCallback callback) throws VarnamException {
-//    VarnamLibrary library = VarnamLibrary.INSTANCE;
-//    LearnStatus.ByReference learnStatus = new LearnStatus.ByReference();
-//
-//    int status = library.varnam_learn_from_file(handle, path, learnStatus, callback, null);
-//    if (status != 0) {
-//      throw new VarnamException(library.varnam_get_last_error(handle));
-//    }
-//
-//    return learnStatus;
-//  }
-//
-//  /**
-//   * Import a varnam exported/trained file
-//   * @param path
-//   * @return
-//   * @throws VarnamException
-//   */
-//  public void importFromFile(String path) throws VarnamException {
-//    VarnamLibrary library = VarnamLibrary.INSTANCE;
-//
-//    int status = library.varnam_import_learnings_from_file(handle, path);
-//    if (status != 0) {
-//      throw new VarnamException(library.varnam_get_last_error(handle));
-//    }
-//  }
-//
-//  /**
-//   * Export sugs to a folder
-//   * @param dirPath
-//   * @param callback
-//   * @throws VarnamException
-//   */
-//  public void exportFull(String dirPath, VarnamLibrary.ExportCallback callback) throws VarnamException {
-////    VarnamLibrary library = VarnamLibrary.INSTANCE;
-////
-////    int status = library.varnam_export(handle, 30000, dirPath, VarnamLibrary.VARNAM_EXPORT_FULL, callback);
-////    if (status != 0) {
-////      throw new VarnamException(status + ": " + library.varnam_get_last_error(handle));
-////    }
-//  }
-//
-//  public String getVstFile() {
-//    return vstFile;
-//  }
+    /**
+     * Import a varnam exported/trained file
+     * @param path
+     * @return
+     */
+    public void importFromFile(String path) throws VarnamException {
+        int status = varnam_import(this.handle, path);
+        if (status != VARNAM_SUCCESS) {
+            throw new VarnamException(getLastError());
+        }
+    }
+
+    /**
+     * Export learnings to a folder
+     * @param dirPath
+     * @param callback
+     * @throws VarnamException
+     */
+    public void export(String filePath, int wordsPerFile) throws VarnamException {
+        int status = varnam_export(this.handle, filePath, wordsPerFile);
+        if (status != VARNAM_SUCCESS) {
+            throw new VarnamException(getLastError());
+        }
+    }
 }

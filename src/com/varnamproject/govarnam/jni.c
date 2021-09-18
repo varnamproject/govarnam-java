@@ -116,7 +116,6 @@ Java_com_varnamproject_govarnam_Varnam_varnam_1transliterate_1advanced(JNIEnv *e
                                                                        jint handle, jint id,
                                                                        jstring word) {
     const char* wordConst = (*env)->GetStringUTFChars(env, word, JNI_FALSE);
-
     char* wordChar = strdup(wordConst);
 //  __android_log_print(ANDROID_LOG_DEBUG, "LOG_TAG", "Need to print : %s", wordChar);
 
@@ -154,4 +153,59 @@ Java_com_varnamproject_govarnam_Varnam_varnam_1transliterate_1advanced(JNIEnv *e
 JNIEXPORT jint JNICALL
 Java_com_varnamproject_govarnam_Varnam_varnam_1cancel(JNIEnv *env, jobject thiz, jint id) {
     return varnam_cancel(id);
+}
+
+JNIEXPORT jobject JNICALL
+Java_com_varnamproject_govarnam_Varnam_varnam_1learn_1from_1file(JNIEnv *env, jobject thiz, jint id, jstring path) {
+    const char* filePathConst = (*env)->GetStringUTFChars(env, path, JNI_FALSE);
+    char* filePathChar = strdup(filePathConst);
+
+    LearnStatus* learnStatus;
+    int code = varnam_learn_from_file(id, filePathChar, &learnStatus);
+
+    free(filePathChar);
+    (*env)->ReleaseStringUTFChars(env, path, filePathConst);
+
+    if (code != VARNAM_SUCCESS) {
+        return NULL;
+    }
+
+    jclass jLearnStatusClass = (*env)->FindClass(env, "com/varnamproject/govarnam/LearnStatus");
+
+    jfieldID TotalWordsID = (*env)->GetFieldID(env, jLearnStatusClass , "TotalWords", "I");
+    jfieldID FailedWordsID = (*env)->GetFieldID(env, jLearnStatusClass , "FailedWords", "I");
+
+    jmethodID constructorID = (*env)->GetMethodID(env, jLearnStatusClass, "<init>", "()V");
+
+    jobject obj = (*env)->NewObject(env, jLearnStatusClass, constructorID);
+    (*env)->SetIntField(env, obj, TotalWordsID, (jint) learnStatus->TotalWords);
+    (*env)->SetIntField(env, obj, FailedWordsID, (jint) learnStatus->FailedWords);
+
+    return obj;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_varnamproject_govarnam_Varnam_varnam_1import(JNIEnv *env, jobject thiz, jint id, jstring path) {
+    const char* filePathConst = (*env)->GetStringUTFChars(env, path, JNI_FALSE);
+    char* filePathChar = strdup(filePathConst);
+
+    int code = varnam_import(id, filePathChar);
+
+    free(filePathChar);
+    (*env)->ReleaseStringUTFChars(env, path, filePathConst);
+
+    return code;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_varnamproject_govarnam_Varnam_varnam_1export(JNIEnv *env, jobject thiz, jint id, jstring path, jint wordsPerFile) {
+    const char* filePathConst = (*env)->GetStringUTFChars(env, path, JNI_FALSE);
+    char* filePathChar = strdup(filePathConst);
+
+    int code = varnam_export(id, filePathChar, wordsPerFile);
+
+    free(filePathChar);
+    (*env)->ReleaseStringUTFChars(env, path, filePathConst);
+
+    return code;
 }
