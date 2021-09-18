@@ -90,18 +90,43 @@ jobjectArray makeJavaSuggestionArray (JNIEnv* env, varray* sugs) {
 }
 
 jobject JNICALL
-Java_com_varnamproject_govarnam_Varnam_varnam_1transliterate_1with_1id(JNIEnv *env, jobject thiz,
+Java_com_varnamproject_govarnam_Varnam_varnam_1transliterate(JNIEnv *env, jobject thiz,
                                                                        jint handle, jint id,
                                                                        jstring word) {
     const char* wordConst = (*env)->GetStringUTFChars(env, word, JNI_FALSE);
 
     char* wordChar = strdup(wordConst);
 //  __android_log_print(ANDROID_LOG_DEBUG, "LOG_TAG", "Need to print : %s", wordChar);
-    TransliterationResult* result = varnam_transliterate_with_id(handle, id, wordChar);
+
+    varray *result;
+    int code = varnam_transliterate(handle, id, wordChar, &result);
+
     free(wordChar);
     (*env)->ReleaseStringUTFChars(env, word, wordConst);
 
-    if (result == NULL) {
+    if (code != VARNAM_SUCCESS) {
+        return NULL;
+    }
+
+    return makeJavaSuggestionArray(env, result);
+}
+
+jobject JNICALL
+Java_com_varnamproject_govarnam_Varnam_varnam_1transliterate_1advanced(JNIEnv *env, jobject thiz,
+                                                                       jint handle, jint id,
+                                                                       jstring word) {
+    const char* wordConst = (*env)->GetStringUTFChars(env, word, JNI_FALSE);
+
+    char* wordChar = strdup(wordConst);
+//  __android_log_print(ANDROID_LOG_DEBUG, "LOG_TAG", "Need to print : %s", wordChar);
+
+    TransliterationResult *result;
+    int code = varnam_transliterate_advanced(handle, id, wordChar, &result);
+
+    free(wordChar);
+    (*env)->ReleaseStringUTFChars(env, word, wordConst);
+
+    if (code != VARNAM_SUCCESS) {
         return NULL;
     }
 

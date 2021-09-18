@@ -7,6 +7,9 @@
 
 package com.varnamproject.govarnam;
 
+import java.util.Arrays;
+import java.util.List;
+
 public final class Varnam {
     int VARNAM_SUCCESS = 0;
     int VARNAM_MISUSE = 1;
@@ -22,7 +25,8 @@ public final class Varnam {
 
     private native int varnam_close(int handle);
 
-    private native TransliterationResult varnam_transliterate_with_id(int handle, int id, String word);
+    private native Suggestion[] varnam_transliterate(int handle, int id, String word);
+    private native TransliterationResult varnam_transliterate_advanced(int handle, int id, String word);
 
     private native int varnam_learn(int handle, String word);
 
@@ -58,8 +62,12 @@ public final class Varnam {
         varnam_set_tokenizer_suggestions_limit(this.handle, limit);
     }
 
-    public TransliterationResult transliterateWithID(int id, String word) throws VarnamException {
-        return varnam_transliterate_with_id(this.handle, id, word);
+    public Suggestion[] transliterate(int id, String word) throws VarnamException {
+        return varnam_transliterate(this.handle, id, word);
+    }
+
+    public TransliterationResult transliterateAdvanced(int id, String word) throws VarnamException {
+        return varnam_transliterate_advanced(this.handle, id, word);
     }
 
     public boolean cancel(int id) {
