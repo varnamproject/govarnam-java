@@ -29,6 +29,7 @@ public final class Varnam {
     private native TransliterationResult varnam_transliterate_advanced(int handle, int id, String word);
 
     private native int varnam_learn(int handle, String word);
+    private native int varnam_unlearn(int handle, String word);
 
     private native int varnam_cancel(int id);
 
@@ -39,6 +40,8 @@ public final class Varnam {
     private native LearnStatus varnam_learn_from_file(int handle, String path);
     private native int varnam_import(int handle, String path);
     private native int varnam_export(int handle, String path, int wordsPerFile);
+
+    private native Suggestion[] varnam_get_recently_learned_words(int hanle, int id, int limit);
 
     private int handle;
 
@@ -85,6 +88,13 @@ public final class Varnam {
         }
     }
 
+    public void unlearn(String word) throws VarnamException {
+        int status = varnam_unlearn(handle, word);
+        if (status != 0) {
+            throw new VarnamException(varnam_get_last_error(handle));
+        }
+    }
+
     public LearnStatus learnFromFile(String path) {
         return varnam_learn_from_file(this.handle, path);
     }
@@ -112,5 +122,9 @@ public final class Varnam {
         if (status != VARNAM_SUCCESS) {
             throw new VarnamException(getLastError());
         }
+    }
+
+    public Suggestion[] getRecentlyLearnedWords(int id, int limit) {
+        return varnam_get_recently_learned_words(this.handle, id, limit);
     }
 }

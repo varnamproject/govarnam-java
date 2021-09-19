@@ -65,6 +65,17 @@ Java_com_varnamproject_govarnam_Varnam_varnam_1learn(JNIEnv *env, jobject thiz, 
     return status;
 }
 
+JNIEXPORT jint JNICALL
+Java_com_varnamproject_govarnam_Varnam_varnam_1unlearn(JNIEnv *env, jobject thiz, jint handle,
+                                                     jstring word) {
+    const char* wordConst = (*env)->GetStringUTFChars(env, word, JNI_FALSE);
+    char* wordChar = strdup(wordConst);
+    int status = varnam_unlearn(handle, wordChar);
+    (*env)->ReleaseStringUTFChars(env, word, wordConst);
+    free(wordChar);
+    return status;
+}
+
 jobjectArray makeJavaSuggestionArray (JNIEnv* env, varray* sugs) {
     jclass jSugClass = (*env)->FindClass(env, "com/varnamproject/govarnam/Suggestion");
     jobjectArray sugArray = (*env)->NewObjectArray(env, varray_length(sugs), jSugClass, NULL);
@@ -208,4 +219,17 @@ Java_com_varnamproject_govarnam_Varnam_varnam_1export(JNIEnv *env, jobject thiz,
     (*env)->ReleaseStringUTFChars(env, path, filePathConst);
 
     return code;
+}
+
+jobject JNICALL
+Java_com_varnamproject_govarnam_Varnam_varnam_1get_1recently_1learned_1words(JNIEnv *env, jobject thiz,
+                                                             jint handle, jint id, jint limit) {
+    varray *result;
+    int code = varnam_get_recently_learned_words(handle, id, limit, &result);
+
+    if (code != VARNAM_SUCCESS) {
+        return NULL;
+    }
+
+    return makeJavaSuggestionArray(env, result);
 }
