@@ -1,10 +1,10 @@
-# libvarnam-java
+# govarnam-java
 
-Java bindings for libvarnam.
+Java bindings for govarnam.
 
 ## Setting up
 
-Directory structure:
+Make a directory structure like this:
 
 * govarnam - Clone govarnam
 * govarnam-java - Clone this
