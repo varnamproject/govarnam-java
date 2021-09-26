@@ -223,9 +223,9 @@ Java_com_varnamproject_govarnam_Varnam_varnam_1export(JNIEnv *env, jobject thiz,
 
 jobject JNICALL
 Java_com_varnamproject_govarnam_Varnam_varnam_1get_1recently_1learned_1words(JNIEnv *env, jobject thiz,
-                                                             jint handle, jint id, jint limit) {
+                                                             jint handle, jint id, jint offset, jint limit) {
     varray *result;
-    int code = varnam_get_recently_learned_words(handle, id, limit, &result);
+    int code = varnam_get_recently_learned_words(handle, id, offset, limit, &result);
 
     if (code != VARNAM_SUCCESS) {
         return NULL;
