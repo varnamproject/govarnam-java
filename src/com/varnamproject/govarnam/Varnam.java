@@ -19,10 +19,10 @@ public final class Varnam {
         System.loadLibrary("govarnam_jni");
     }
 
+    private static native SchemeDetails[] varnam_get_all_scheme_details();
+
     private native int varnam_init(String vstFile, String learningsFile);
-
     private native String varnam_get_last_error(int handle);
-
     private native int varnam_close(int handle);
 
     private native Suggestion[] varnam_transliterate(int handle, int id, String word);
@@ -41,7 +41,8 @@ public final class Varnam {
     private native int varnam_import(int handle, String path);
     private native int varnam_export(int handle, String path, int wordsPerFile);
 
-    private native Suggestion[] varnam_get_recently_learned_words(int hanle, int id, int limit);
+    private native static void varnam_set_vst_lookup_dir(String path);
+    private native Suggestion[] varnam_get_recently_learned_words(int handle, int id, int limit);
 
     private int handle;
 
@@ -126,5 +127,12 @@ public final class Varnam {
 
     public Suggestion[] getRecentlyLearnedWords(int id, int limit) {
         return varnam_get_recently_learned_words(this.handle, id, limit);
+    }
+
+    public static void setVSTLookupDir(String path) {
+        varnam_set_vst_lookup_dir(path);
+    }
+    public static SchemeDetails[] getAllSchemeDetails() {
+        return varnam_get_all_scheme_details();
     }
 }

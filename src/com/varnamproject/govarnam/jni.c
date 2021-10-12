@@ -221,7 +221,7 @@ Java_com_varnamproject_govarnam_Varnam_varnam_1export(JNIEnv *env, jobject thiz,
     return code;
 }
 
-jobject JNICALL
+JNIEXPORT jobject JNICALL
 Java_com_varnamproject_govarnam_Varnam_varnam_1get_1recently_1learned_1words(JNIEnv *env, jobject thiz,
                                                              jint handle, jint id, jint offset, jint limit) {
     varray *result;
@@ -232,4 +232,46 @@ Java_com_varnamproject_govarnam_Varnam_varnam_1get_1recently_1learned_1words(JNI
     }
 
     return makeJavaSuggestionArray(env, result);
+}
+
+JNIEXPORT void JNICALL
+Java_com_varnamproject_govarnam_Varnam_varnam_1set_1vst_1lookup_1dir(JNIEnv *env, jobject thiz, jstring vst_dir) {
+    const char* vstDirConst = (*env)->GetStringUTFChars(env, vst_dir, JNI_FALSE);
+    char* vstDir = strdup(vstDirConst);
+    varnam_set_vst_lookup_dir(vstDir);
+}
+
+JNIEXPORT jobjectArray JNICALL
+Java_com_varnamproject_govarnam_Varnam_varnam_1get_1all_1scheme_1details(JNIEnv *env, jobject thiz) {
+    varray *result = varnam_get_all_scheme_details();
+
+    jclass jSchemeDetailsClass = (*env)->FindClass(env, "com/varnamproject/govarnam/SchemeDetails");
+    jobjectArray sdArray = (*env)->NewObjectArray(env, varray_length(result), jSchemeDetailsClass, NULL);
+
+    jfieldID IdentifierID = (*env)->GetFieldID(env, jSchemeDetailsClass , "Identifier", "Ljava/lang/String;");
+    jfieldID LangCodeID = (*env)->GetFieldID(env, jSchemeDetailsClass , "LangCode", "Ljava/lang/String;");
+    jfieldID DisplayNameID = (*env)->GetFieldID(env, jSchemeDetailsClass , "DisplayName", "Ljava/lang/String;");
+    jfieldID AuthorID = (*env)->GetFieldID(env, jSchemeDetailsClass , "Author", "Ljava/lang/String;");
+    jfieldID CompiledDateID = (*env)->GetFieldID(env, jSchemeDetailsClass , "CompiledDate", "Ljava/lang/String;");
+    jfieldID IsStableID = (*env)->GetFieldID(env, jSchemeDetailsClass , "IsStable", "Z");
+
+    jmethodID constructorID = (*env)->GetMethodID(env, jSchemeDetailsClass, "<init>", "()V");
+
+    jobject obj;
+    jint ji;
+    for (int i = 0; i < varray_length(result); i++) {
+        ji = i;
+        SchemeDetails* sd = (SchemeDetails*) varray_get(result, i);
+
+        obj = (*env)->NewObject(env, jSchemeDetailsClass, constructorID);
+        (*env)->SetObjectField(env, obj, IdentifierID, (*env)->NewStringUTF(env, sd->Identifier));
+        (*env)->SetObjectField(env, obj, LangCodeID, (*env)->NewStringUTF(env, sd->LangCode));
+        (*env)->SetObjectField(env, obj, DisplayNameID, (*env)->NewStringUTF(env, sd->DisplayName));
+        (*env)->SetObjectField(env, obj, AuthorID, (*env)->NewStringUTF(env, sd->Author));
+        (*env)->SetObjectField(env, obj, CompiledDateID, (*env)->NewStringUTF(env, sd->CompiledDate));
+        (*env)->SetBooleanField(env, obj, IsStableID, (jboolean) sd->IsStable);
+        (*env)->SetObjectArrayElement(env, sdArray, ji, obj);
+    }
+
+    return sdArray;
 }
