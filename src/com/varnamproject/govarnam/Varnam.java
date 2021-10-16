@@ -42,7 +42,7 @@ public final class Varnam {
     private native int varnam_export(int handle, String path, int wordsPerFile);
 
     private native static void varnam_set_vst_lookup_dir(String path);
-    private native Suggestion[] varnam_get_recently_learned_words(int handle, int id, int limit);
+    private native Suggestion[] varnam_get_recently_learned_words(int handle, int id, int offset, int limit);
 
     private int handle;
 
@@ -125,8 +125,8 @@ public final class Varnam {
         }
     }
 
-    public Suggestion[] getRecentlyLearnedWords(int id, int limit) {
-        return varnam_get_recently_learned_words(this.handle, id, limit);
+    public Suggestion[] getRecentlyLearnedWords(int id, int offset, int limit) {
+        return varnam_get_recently_learned_words(this.handle, id, offset, limit);
     }
 
     public static void setVSTLookupDir(String path) {
